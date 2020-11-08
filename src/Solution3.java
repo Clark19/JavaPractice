@@ -1,23 +1,18 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Solution3 {
 
     private final int BASIC_STAKE = 100;
 
     public int solution(int money, String[] expected, String[] actual) {
-        int answer = -1;
+        int answer = Integer.MIN_VALUE;
 
         //0. 예외처리(제한사항)
-        if (!(money >= 1000 && money <= 100000))
-            prt("Error : money amount");
-        if (expected.length != actual.length)
-            prt("Error : exp/actual length is not equal ");
-        if (!(expected.length >=1 && expected.length <=10000) || !(actual.length >=1 && actual.length <=10000))
-            prt("Error : exp/actual length range");
-        for (int i=0; i < expected.length; i++) {
-            if (!(actual[i].equals("H") || actual[i].equals("T")) || !(expected[i].equals("H") || expected[i].equals("T")) )
-                prt("Error : actual/exp is not H or T");
-        }
+        if (checkError(money, expected, actual))
+            return answer;
 
-        //1.
+        //1. Win or Lose => plus or minus money.
         int stake = BASIC_STAKE; //  판돈
         for (int i=0; money > 0 && i < actual.length; i++) {
 
@@ -34,12 +29,61 @@ public class Solution3 {
                 else
                     stake = money;
             }
-//        100
         }
         answer = money;
 
-        //2.
         return answer;
+    }
+
+    void prt(String msg) {
+        System.out.println(msg);
+    }
+
+
+    private boolean checkError(int money, String[] expected, String[] actual) {
+        boolean isError = false;
+
+        if (!(money >= 1000 && money <= 100000)) {
+            prt("Error : money amount");
+            isError = true;
+        }
+        if (expected.length != actual.length) {
+            prt("Error : exp/actual length is not equal ");
+            isError = true;
+        }
+        if (!(expected.length >=1 && expected.length <=10000) || !(actual.length >=1 && actual.length <=10000)) {
+            prt("Error : exp/actual length range");
+            isError = true;
+        }
+        for (int i=0; i < expected.length; i++) {
+            if (!(actual[i].equals("H") || actual[i].equals("T")) || !(expected[i].equals("H") || expected[i].equals("T")) ) {
+                prt("Error : actual/exp is not H or T");
+                isError = true;
+            }
+        }
+
+        return isError;
+    }
+
+    private class TestValue {
+        private int money;
+        private String[] expected;
+        private String[] actual;
+        private int expectedResult;
+
+        TestValue(int money, String[] expected, String[] actual, int expectedResult) {
+            this.money = money;
+            this.expected = expected;
+            this.actual = actual;
+            this.expectedResult = expectedResult;
+        }
+
+        public TestValue(TestValue tv) {
+            this.money = tv.money;
+            this.expected = tv.expected;
+            this.actual = tv.actual;
+            this.expectedResult = tv.expectedResult;
+        }
     }
 
     void run() {
@@ -50,42 +94,29 @@ money	expected	                        actual	                                re
 1200	['T', 'T', 'H', 'H', 'H']	         ['H', 'H', 'T', 'H', 'T']	            900
 1500	['H', 'H', 'H', 'T', 'H']	         ['T', 'T', 'T', 'H', 'T']	            0
  */
-        //테스트 값
-// 테스트값       개선 할 점 생각해볼것
-        final int money1 = 1000;
-        final String[] expected1 = {"H", "T", "H", "T", "H", "T", "H"};
-        final String[] actual1 = {"T", "T", "H", "H", "T", "T", "H"};
-        final int expectedResult1 = 1400;
-
-        final int money2 = 1200;
-        final String[] expected2 = {"T", "T", "H", "H", "H"};
-        final String[] actual2 = {"H", "H", "T", "H", "T"};
-        final int expectedResult2 = 900;
-
-        final int money3 = 1500;
-        final String[] expected3 = {"H", "H", "H", "T", "H"};
-        final String[] actual3 = {"T", "T", "T", "H", "T"};
-        final int expectedResult3 = 0;
-
-        //테스트 값 변경하면서 대입하는거 개선할 방법 생각해 볼 것.
-        final int money = money1;
-        final String[] expected = expected1;
-        final String[] actual = actual1;
-        final int expectedResult = expectedResult1;
+        TestValue tv1 = new TestValue(1000, new String[]{"H", "T", "H", "T", "H", "T", "H"}
+                , new String[]{"T", "T", "H", "H", "T", "T", "H"}, 1400 );
+        TestValue tv2 = new TestValue(1200, new String[]{"T", "T", "H", "H", "H"}
+            , new String[]{"H", "H", "T", "H", "T"} ,900);
+        TestValue tv3 = new TestValue(1500, new String[]{"H", "H", "H", "T", "H"}
+                , new String[]{"T", "T", "T", "H", "T"},0);
+//        List<TestValue> testValues = new ArrayList<>() { {add(tv1); add(tv2); add(tv3);} };
+        TestValue[] testValues = {tv1, tv2, tv3};
 
 
         prt("우아한테크코스-프로그래머스 코딩테스트 3번 문제 : '동전뒤집기게임(마틴게일 베팅법)'");
-        int actualResult = solution(money, expected, actual);
-        if ( expectedResult == actualResult)
-            prt("Test 성공");
-        else
-            prt("Test 실패");
-        prt("result : " + actualResult);
+        int actualResult = Integer.MIN_VALUE;
+        int testCnt = 1;
+        for (TestValue testValue : testValues) {
+            actualResult = solution(testValue.money, testValue.expected, testValue.actual);
+            if (testValue.expectedResult == actualResult)
+                prt("Test" + testCnt++ +" 성공");
+            else
+                prt("Test" + testCnt++ +" 실패");
+            prt("result : " + actualResult + "\n");
+        }
 
     }
 
-    private void prt(String msg) {
-        System.out.println(msg);
-    }
 
 }
